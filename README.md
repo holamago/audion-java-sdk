@@ -32,18 +32,6 @@
 
 ## 🚀 설치
 
-### Maven을 사용한 설치
-
-`pom.xml`에 다음 의존성을 추가하세요:
-
-```xml
-<dependency>
-    <groupId>com.magovoice</groupId>
-    <artifactId>audion-java-sdk</artifactId>
-    <version>0.1.0</version>
-</dependency>
-```
-
 ### 소스에서 빌드
 
 ```bash
@@ -222,6 +210,21 @@ try {
     // 네트워크 오류나 API 오류
     System.err.println("API 오류: " + e.getMessage());
 }
+```
+
+## 🧪 예제 테스트하기
+
+### Java 명령어 직접 실행
+
+```bash
+# SDK 빌드 및 설치
+mvn clean install
+
+# 의존성 JAR 파일들 복사
+mvn dependency:copy-dependencies
+
+# 예제 실행
+java -cp "target/audion-java-sdk-0.1.0.jar:target/dependency/*" com.magovoice.audion.Example
 ```
 
 ## 🧪 테스트
