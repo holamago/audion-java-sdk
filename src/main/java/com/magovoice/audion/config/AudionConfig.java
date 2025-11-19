@@ -11,7 +11,7 @@ public final class AudionConfig {
     /**
      * Production server URL
      */
-    public static final String PRODUCTION_URL = "https://audion.magovoice.com/go-framework/v1/go";
+    public static final String PRODUCTION_URL = "https://audion.magovoice.com/api-key/v1";
     
     /**
      * Default timeout in seconds
