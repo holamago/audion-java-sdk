@@ -63,7 +63,7 @@ public abstract class BaseAudionClient {
         
         Request.Builder requestBuilder = new Request.Builder()
                 .url(url)
-                .addHeader("Authorization", "Bearer " + apiKey);
+                .addHeader("Authorization", "Audion " + apiKey);
         
         RequestBody requestBody;
         
@@ -136,7 +136,7 @@ public abstract class BaseAudionClient {
         
         Request request = new Request.Builder()
                 .url(url)
-                .addHeader("Authorization", "Bearer " + apiKey)
+                .addHeader("Authorization", "Audion " + apiKey)
                 .get()
                 .build();
         

@@ -19,7 +19,7 @@ public class Example {
             Object result = client.flow(
                 "audion_vu",
                 "url",
-                "https://youtube.com/shorts/HIpBeKKxQWg?si=671h6ncNkUlSe8nE"
+                "https://youtube.com/link"
             );
             
             System.out.println("Result: " + result);
