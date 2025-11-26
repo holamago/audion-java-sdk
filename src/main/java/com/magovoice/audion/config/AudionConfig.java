@@ -16,7 +16,7 @@ public final class AudionConfig {
     /**
      * Default timeout in seconds
      */
-    public static final int TIMEOUT = 300;
+    public static final int TIMEOUT = 3600;
     
     /**
      * Private constructor to prevent instantiation

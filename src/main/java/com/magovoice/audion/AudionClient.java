@@ -1,5 +1,7 @@
 package com.magovoice.audion;
 
+import com.magovoice.audion.model.FlowResponse;
+
 import java.io.IOException;
 
 /**
@@ -49,15 +51,15 @@ public class AudionClient extends BaseAudionClient {
     
     /**
      * Execute a flow with the given parameters
-     * 
+     *
      * @param flow the flow to execute
      * @param inputType the type of input (file or url)
      * @param input the input data (file path or URL)
-     * @return the response as a JSON object
+     * @return the flow response
      * @throws IOException if the request fails
      * @throws IllegalArgumentException if the input type is not supported
      */
-    public Object flow(String flow, String inputType, String input) throws IOException {
+    public FlowResponse flow(String flow, String inputType, String input) throws IOException {
         return super.flow(flow, inputType, input);
     }
     

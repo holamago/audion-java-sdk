@@ -1,25 +1,27 @@
 package com.magovoice.audion;
 
+import com.magovoice.audion.model.FlowResponse;
+
 import java.io.IOException;
 
 /**
  * Example usage of Audion Java SDK
- * 
+ *
  * @author Sukbong Kwon (Galois)
  * @since 0.1.0
  */
 public class Example {
-    
+
     public static void main(String[] args) {
         // Initialize the client with your API key
-        AudionClient client = new AudionClient("mk-h19xW7wb_tjMyja8OpOYeGgjWtzSnGajtRSF55yH7L-qvYes");
+        AudionClient client = new AudionClient("mk-key-value");
         
         try {
             // Process a YouTube URL
-            Object result = client.flow(
-                "audion_vu",
+            FlowResponse result = client.flow(
+                "audion_vh",
                 "url",
-                "https://youtube.com/link"
+                "https://www.youtube.com/url-example"
             );
             
             System.out.println("Result: " + result);

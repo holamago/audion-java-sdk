@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.magovoice.audion.config.AudionConfig;
 import com.magovoice.audion.core.Logger;
 import com.magovoice.audion.helper.Utils;
+import com.magovoice.audion.model.FlowResponse;
 import okhttp3.*;
 
 import java.io.File;
@@ -49,15 +50,15 @@ public abstract class BaseAudionClient {
     
     /**
      * Execute a flow with the given parameters
-     * 
+     *
      * @param flow the flow to execute
      * @param inputType the type of input (file or url)
      * @param input the input data (file path or URL)
-     * @return the response as a JSON object
+     * @return the flow response
      * @throws IOException if the request fails
      * @throws IllegalArgumentException if the input type is not supported
      */
-    public Object flow(String flow, String inputType, String input) throws IOException {
+    public FlowResponse flow(String flow, String inputType, String input) throws IOException {
         String url = baseUrl + "/flow";
         logger.info("Calling flow API: {}", url);
         
@@ -111,13 +112,13 @@ public abstract class BaseAudionClient {
                 }
                 throw new IOException("API call failed with status: " + response.code());
             }
-            
+
             if (response.body() != null) {
                 String responseBody = response.body().string();
-                return objectMapper.readValue(responseBody, Object.class);
+                return objectMapper.readValue(responseBody, FlowResponse.class);
             }
-            
-            return null;
+
+            throw new IOException("Empty response body");
         } catch (Exception e) {
             logger.error("Failed to call the API: {}", e.getMessage(), e);
             throw e;
