@@ -6,13 +6,37 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.magovoice</groupId>
-    <artifactId>audion-java-sdk</artifactId>
+    <artifactId>audion</artifactId>
     <version>0.1.0</version>
     <packaging>jar</packaging>
 
     <name>Audion Java SDK</name>
     <description>Java SDK for Audion Voice AI Service</description>
     <url>https://audion.magovoice.com</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>holamago</id>
+            <name>MAGO Team</name>
+            <email>contact@holamago.com</email>
+            <organization>MAGO</organization>
+            <organizationUrl>https://magovoice.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/holamago/audion-java-sdk.git</connection>
+        <developerConnection>scm:git:ssh://github.com:holamago/audion-java-sdk.git</developerConnection>
+        <url>https://github.com/holamago/audion-java-sdk/tree/main</url>
+    </scm>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -60,8 +84,17 @@
         </dependency>
     </dependencies>
 
+    <!-- Maven Central 배포를 위한 새로운 URL -->
+    <distributionManagement>
+        <repository>
+            <id>central</id>
+            <url>https://central.sonatype.com/api/v1/publisher/deployments/</url>
+        </repository>
+    </distributionManagement>
+
     <build>
         <plugins>
+            <!-- 컴파일러 플러그인 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -71,11 +104,15 @@
                     <target>11</target>
                 </configuration>
             </plugin>
+
+            <!-- 테스트 플러그인 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.1.0</version>
             </plugin>
+
+            <!-- 소스 JAR 생성 (Maven Central 필수) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -89,6 +126,8 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Javadoc JAR 생성 (Maven Central 필수) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -102,6 +141,34 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- GPG 서명 플러그인 (Maven Central 필수) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.9.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <autoPublish>true</autoPublish>
+                    <waitUntil>published</waitUntil>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-</project> 
+</project>
