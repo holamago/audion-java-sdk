@@ -49,6 +49,12 @@ public class MediaInfo {
     private String codecName;
 
     /**
+     *
+     */
+    @JsonProperty("bits_per_raw_sample")
+    private Integer bitsPerRawSample;
+
+    /**
      * Default constructor
      */
     public MediaInfo() {
@@ -58,13 +64,14 @@ public class MediaInfo {
      * Constructor with all fields
      */
     public MediaInfo(String codecType, Double duration, String sampleRate,
-                     Integer channels, String sampleFormat, String codecName) {
+                     Integer channels, String sampleFormat, String codecName,Integer bitsPerRawSample) {
         this.codecType = codecType;
         this.duration = duration;
         this.sampleRate = sampleRate;
         this.channels = channels;
         this.sampleFormat = sampleFormat;
         this.codecName = codecName;
+        this.bitsPerRawSample = bitsPerRawSample;
     }
 
     // Getters
@@ -93,7 +100,9 @@ public class MediaInfo {
         return codecName;
     }
 
-    // Setters
+	public Integer getBitsPerRawSample() { return bitsPerRawSample; }
+
+	// Setters
 
     public void setCodecType(String codecType) {
         this.codecType = codecType;
@@ -118,6 +127,9 @@ public class MediaInfo {
     public void setCodecName(String codecName) {
         this.codecName = codecName;
     }
+
+    public void setBitsPerRawSample(Integer bitsPerRawSample) { this.bitsPerRawSample = bitsPerRawSample; }
+
 
     @Override
     public String toString() {

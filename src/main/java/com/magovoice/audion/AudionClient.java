@@ -3,6 +3,7 @@ package com.magovoice.audion;
 import com.magovoice.audion.model.FlowResponse;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Main client class for Audion SDK
@@ -64,8 +65,35 @@ public class AudionClient extends BaseAudionClient {
     }
     
     /**
+     * Execute a flow with an InputStream
+     *
+     * @param flow the flow to execute
+     * @param stream the input stream of the file
+     * @param filename the original filename including extension (e.g. "audio.mp3")
+     * @param contentLength the size of the stream in bytes, or -1 if unknown (uses chunked transfer)
+     * @return the flow response
+     * @throws IOException if the request fails
+     */
+    public FlowResponse flow(String flow, InputStream stream, String filename, long contentLength) throws IOException {
+        return super.flow(flow, stream, filename, contentLength);
+    }
+
+    /**
+     * Execute a flow with an InputStream (contentLength unknown, uses chunked transfer)
+     *
+     * @param flow the flow to execute
+     * @param stream the input stream of the file
+     * @param filename the original filename including extension (e.g. "audio.mp3")
+     * @return the flow response
+     * @throws IOException if the request fails
+     */
+    public FlowResponse flow(String flow, InputStream stream, String filename) throws IOException {
+        return super.flow(flow, stream, filename);
+    }
+
+    /**
      * Get available flows from the server
-     * 
+     *
      * @return the flows response
      * @throws IOException if the request fails
      */
