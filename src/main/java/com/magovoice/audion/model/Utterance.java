@@ -45,12 +45,19 @@ public class Utterance {
     @JsonProperty("voice_highlight")
     private VoiceHighlight voiceHighlight;
 
+    @JsonProperty("dementia_info")
+    private DementiaInfo dementiaInfo;
+
+    @JsonProperty("depression_info")
+    private DepressionInfo depressionInfo;
+
     public Utterance() {
     }
 
     public Utterance(Double start, Double end, String text, String speaker, String id,
                      String filename, Double score, String emotion, EmotionInfo emotionInfo,
-                     SpeedInfo speedInfo, VoiceHighlight voiceHighlight) {
+                     SpeedInfo speedInfo, VoiceHighlight voiceHighlight,
+                     DementiaInfo dementiaInfo, DepressionInfo depressionInfo) {
         this.start = start;
         this.end = end;
         this.text = text;
@@ -62,6 +69,8 @@ public class Utterance {
         this.emotionInfo = emotionInfo;
         this.speedInfo = speedInfo;
         this.voiceHighlight = voiceHighlight;
+        this.dementiaInfo = dementiaInfo;
+        this.depressionInfo = depressionInfo;
     }
 
     public Double getStart() {
@@ -152,6 +161,22 @@ public class Utterance {
         this.voiceHighlight = voiceHighlight;
     }
 
+    public DementiaInfo getDementiaInfo() {
+        return dementiaInfo;
+    }
+
+    public void setDementiaInfo(DementiaInfo dementiaInfo) {
+        this.dementiaInfo = dementiaInfo;
+    }
+
+    public DepressionInfo getDepressionInfo() {
+        return depressionInfo;
+    }
+
+    public void setDepressionInfo(DepressionInfo depressionInfo) {
+        this.depressionInfo = depressionInfo;
+    }
+
     @Override
     public String toString() {
         return "Utterance{" +
@@ -166,6 +191,8 @@ public class Utterance {
                 ", emotionInfo=" + emotionInfo +
                 ", speedInfo=" + speedInfo +
                 ", voiceHighlight=" + voiceHighlight +
+                ", dementiaInfo=" + dementiaInfo +
+                ", depressionInfo=" + depressionInfo +
                 '}';
     }
 }
