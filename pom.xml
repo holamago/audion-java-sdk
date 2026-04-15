@@ -7,7 +7,7 @@
 
     <groupId>com.magovoice</groupId>
     <artifactId>audion</artifactId>
-    <version>0.1.2</version>
+    <version>0.1.5</version>
     <packaging>jar</packaging>
 
     <name>Audion Java SDK</name>
@@ -73,6 +73,7 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- Testing -->

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.magovoice.audion.config.AudionConfig;
 import com.magovoice.audion.core.Logger;
 import com.magovoice.audion.helper.Utils;
+import com.magovoice.audion.model.DownloadFormat;
 import com.magovoice.audion.model.FlowResponse;
 import okhttp3.*;
 import okio.BufferedSink;
@@ -12,6 +13,11 @@ import okio.Okio;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -236,5 +242,176 @@ public abstract class BaseAudionClient {
             
             return null;
         }
+    }
+
+    private static final String DOWNLOAD_FLOW = "audion_vu";
+
+    /**
+     * Execute audion_vu flow and download a subtitle file.
+     * <p>
+     * If {@code outputPath} points to an existing directory, the file is saved as
+     * {@code {documentId}.{ext}} inside that directory. Otherwise it is written
+     * directly to the given path.
+     *
+     * @param inputType  the type of input (file or url)
+     * @param input      the input data (file path or URL)
+     * @param format     the subtitle format to download (SRT or VTT)
+     * @param outputPath destination file path, or a directory for auto-naming
+     * @return the path of the saved file
+     * @throws IOException if the request fails
+     */
+    public Path download(String inputType, String input,
+                         DownloadFormat format, Path outputPath) throws IOException {
+        FlowResponse response = flow(DOWNLOAD_FLOW, inputType, input);
+        String documentId = response.getContent().getDocumentId();
+        return downloadFile(documentId, format, outputPath);
+    }
+
+    /**
+     * Execute audion_vu flow and download a subtitle file to the current directory.
+     * The file is saved as {@code {documentId}.{ext}} in the current working directory.
+     *
+     * @param inputType the type of input (file or url)
+     * @param input     the input data (file path or URL)
+     * @param format    the subtitle format to download (SRT or VTT)
+     * @return the path of the saved file
+     * @throws IOException if the request fails
+     */
+    public Path download(String inputType, String input, DownloadFormat format) throws IOException {
+        return download(inputType, input, format, Paths.get("."));
+    }
+
+    /**
+     * Execute audion_vu flow and download both SRT and VTT subtitle files.
+     * <p>
+     * Files are saved as {@code {documentId}.srt} and {@code {documentId}.vtt}
+     * inside the specified directory.
+     *
+     * @param inputType the type of input (file or url)
+     * @param input     the input data (file path or URL)
+     * @param outputDir directory to save the files in
+     * @return a map of format to saved file path
+     * @throws IOException if the request fails
+     */
+    public Map<DownloadFormat, Path> download(String inputType, String input,
+                                              Path outputDir) throws IOException {
+        FlowResponse response = flow(DOWNLOAD_FLOW, inputType, input);
+        String documentId = response.getContent().getDocumentId();
+        ensureDirectory(outputDir);
+        Map<DownloadFormat, Path> results = new EnumMap<>(DownloadFormat.class);
+        for (DownloadFormat format : DownloadFormat.values()) {
+            results.put(format, downloadFile(documentId, format, outputDir));
+        }
+        return results;
+    }
+
+    /**
+     * Execute audion_vu flow with InputStream and download a subtitle file.
+     *
+     * @param stream        the input stream of the file
+     * @param filename      the original filename including extension
+     * @param contentLength the size of the stream in bytes, or -1 if unknown
+     * @param format        the subtitle format to download (SRT or VTT)
+     * @param outputPath    destination file path, or a directory for auto-naming
+     * @return the path of the saved file
+     * @throws IOException if the request fails
+     */
+    public Path download(InputStream stream, String filename, long contentLength,
+                         DownloadFormat format, Path outputPath) throws IOException {
+        FlowResponse response = flow(DOWNLOAD_FLOW, stream, filename, contentLength);
+        String documentId = response.getContent().getDocumentId();
+        return downloadFile(documentId, format, outputPath);
+    }
+
+    /**
+     * Execute audion_vu flow with InputStream and download a subtitle file to the current directory.
+     *
+     * @param stream        the input stream of the file
+     * @param filename      the original filename including extension
+     * @param contentLength the size of the stream in bytes, or -1 if unknown
+     * @param format        the subtitle format to download (SRT or VTT)
+     * @return the path of the saved file
+     * @throws IOException if the request fails
+     */
+    public Path download(InputStream stream, String filename, long contentLength,
+                         DownloadFormat format) throws IOException {
+        return download(stream, filename, contentLength, format, Paths.get("."));
+    }
+
+    /**
+     * Execute audion_vu flow with InputStream and download both SRT and VTT.
+     *
+     * @param stream        the input stream of the file
+     * @param filename      the original filename including extension
+     * @param contentLength the size of the stream in bytes, or -1 if unknown
+     * @param outputDir     directory to save the files in
+     * @return a map of format to saved file path
+     * @throws IOException if the request fails
+     */
+    public Map<DownloadFormat, Path> download(InputStream stream, String filename,
+                                              long contentLength, Path outputDir) throws IOException {
+        FlowResponse response = flow(DOWNLOAD_FLOW, stream, filename, contentLength);
+        String documentId = response.getContent().getDocumentId();
+        ensureDirectory(outputDir);
+        Map<DownloadFormat, Path> results = new EnumMap<>(DownloadFormat.class);
+        for (DownloadFormat format : DownloadFormat.values()) {
+            results.put(format, downloadFile(documentId, format, outputDir));
+        }
+        return results;
+    }
+
+    private Path downloadFile(String documentId, DownloadFormat format, Path outputPath) throws IOException {
+        String url = baseUrl + "/flow/download/" + documentId + "?format=" + format.getValue();
+        logger.info("Downloading {} for document {}: {}", format.getValue(), documentId, url);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Audion " + apiKey)
+                .get()
+                .build();
+
+        Path resolved = resolveOutputPath(outputPath, documentId, format);
+        Path parent = resolved.getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
+        }
+
+        try (Response response = httpClient.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                logger.error("Download failed with status: {}", response.code());
+                if (response.body() != null) {
+                    logger.error("Response body: {}", response.body().string());
+                }
+                throw new IOException("Download failed with status: " + response.code());
+            }
+
+            if (response.body() == null) {
+                throw new IOException("Empty response body");
+            }
+
+            try (BufferedSink sink = Okio.buffer(Okio.sink(resolved.toFile()))) {
+                sink.writeAll(response.body().source());
+            }
+
+            logger.info("Saved {} to {}", format.getValue(), resolved);
+            return resolved;
+        } catch (Exception e) {
+            logger.error("Failed to download {}: {}", format.getValue(), e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    private void ensureDirectory(Path dir) throws IOException {
+        if (Files.exists(dir) && !Files.isDirectory(dir)) {
+            throw new IOException("Output path already exists as a file: " + dir);
+        }
+        Files.createDirectories(dir);
+    }
+
+    private Path resolveOutputPath(Path outputPath, String documentId, DownloadFormat format) {
+        if (Files.isDirectory(outputPath)) {
+            return outputPath.resolve(documentId + format.getExtension());
+        }
+        return outputPath;
     }
 } 

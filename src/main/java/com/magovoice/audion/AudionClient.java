@@ -1,9 +1,12 @@
 package com.magovoice.audion;
 
+import com.magovoice.audion.model.DownloadFormat;
 import com.magovoice.audion.model.FlowResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.Map;
 
 /**
  * Main client class for Audion SDK
@@ -99,5 +102,101 @@ public class AudionClient extends BaseAudionClient {
      */
     public Object getFlows() throws IOException {
         return super.getFlows();
+    }
+
+    /**
+     * Execute audion_vu flow and download a subtitle file.
+     * <p>
+     * If {@code outputPath} points to an existing directory, the file is saved as
+     * {@code {documentId}.{ext}} inside that directory. Otherwise it is written
+     * directly to the given path.
+     *
+     * @param inputType  the type of input (file or url)
+     * @param input      the input data (file path or URL)
+     * @param format     the subtitle format to download ({@link DownloadFormat#SRT} or {@link DownloadFormat#VTT})
+     * @param outputPath destination file path, or a directory for auto-naming
+     * @return the path of the saved file
+     * @throws IOException if the request fails
+     */
+    public Path download(String inputType, String input,
+                         DownloadFormat format, Path outputPath) throws IOException {
+        return super.download(inputType, input, format, outputPath);
+    }
+
+    /**
+     * Execute audion_vu flow and download a subtitle file to the current directory.
+     * The file is saved as {@code {documentId}.{ext}} in the current working directory.
+     *
+     * @param inputType the type of input (file or url)
+     * @param input     the input data (file path or URL)
+     * @param format    the subtitle format to download
+     * @return the path of the saved file
+     * @throws IOException if the request fails
+     */
+    public Path download(String inputType, String input, DownloadFormat format) throws IOException {
+        return super.download(inputType, input, format);
+    }
+
+    /**
+     * Execute audion_vu flow and download both SRT and VTT subtitle files.
+     * <p>
+     * Files are saved as {@code {documentId}.srt} and {@code {documentId}.vtt}
+     * inside the specified directory.
+     *
+     * @param inputType the type of input (file or url)
+     * @param input     the input data (file path or URL)
+     * @param outputDir directory to save the files in
+     * @return a map of {@link DownloadFormat} to saved file path
+     * @throws IOException if the request fails
+     */
+    public Map<DownloadFormat, Path> download(String inputType, String input,
+                                              Path outputDir) throws IOException {
+        return super.download(inputType, input, outputDir);
+    }
+
+    /**
+     * Execute audion_vu flow with InputStream and download a subtitle file.
+     *
+     * @param stream        the input stream of the file
+     * @param filename      the original filename including extension
+     * @param contentLength the size of the stream in bytes, or -1 if unknown
+     * @param format        the subtitle format to download
+     * @param outputPath    destination file path, or a directory for auto-naming
+     * @return the path of the saved file
+     * @throws IOException if the request fails
+     */
+    public Path download(InputStream stream, String filename, long contentLength,
+                         DownloadFormat format, Path outputPath) throws IOException {
+        return super.download(stream, filename, contentLength, format, outputPath);
+    }
+
+    /**
+     * Execute audion_vu flow with InputStream and download a subtitle file to the current directory.
+     *
+     * @param stream        the input stream of the file
+     * @param filename      the original filename including extension
+     * @param contentLength the size of the stream in bytes, or -1 if unknown
+     * @param format        the subtitle format to download
+     * @return the path of the saved file
+     * @throws IOException if the request fails
+     */
+    public Path download(InputStream stream, String filename, long contentLength,
+                         DownloadFormat format) throws IOException {
+        return super.download(stream, filename, contentLength, format);
+    }
+
+    /**
+     * Execute audion_vu flow with InputStream and download both SRT and VTT.
+     *
+     * @param stream        the input stream of the file
+     * @param filename      the original filename including extension
+     * @param contentLength the size of the stream in bytes, or -1 if unknown
+     * @param outputDir     directory to save the files in
+     * @return a map of {@link DownloadFormat} to saved file path
+     * @throws IOException if the request fails
+     */
+    public Map<DownloadFormat, Path> download(InputStream stream, String filename,
+                                              long contentLength, Path outputDir) throws IOException {
+        return super.download(stream, filename, contentLength, outputDir);
     }
 } 

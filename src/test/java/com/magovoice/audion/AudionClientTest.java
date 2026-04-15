@@ -1,5 +1,6 @@
 package com.magovoice.audion;
 
+import com.magovoice.audion.model.DownloadFormat;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import static org.junit.jupiter.api.Assertions.*;
@@ -55,5 +56,22 @@ public class AudionClientTest {
     void testConstructorWithCustomTimeout() {
         AudionClient customClient = new AudionClient("test-api-key", null, 60);
         assertNotNull(customClient);
+    }
+
+    @Test
+    void testDownloadFormatValues() {
+        assertEquals("srt", DownloadFormat.SRT.getValue());
+        assertEquals("vtt", DownloadFormat.VTT.getValue());
+    }
+
+    @Test
+    void testDownloadFormatExtensions() {
+        assertEquals(".srt", DownloadFormat.SRT.getExtension());
+        assertEquals(".vtt", DownloadFormat.VTT.getExtension());
+    }
+
+    @Test
+    void testDownloadFormatEnumCount() {
+        assertEquals(2, DownloadFormat.values().length);
     }
 } 

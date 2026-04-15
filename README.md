@@ -32,6 +32,22 @@
 
 ## 🚀 설치
 
+### Maven
+
+```xml
+<dependency>
+    <groupId>com.magovoice</groupId>
+    <artifactId>audion</artifactId>
+    <version>0.1.5</version>
+</dependency>
+```
+
+### Gradle
+
+```groovy
+implementation 'com.magovoice:audion:0.1.5'
+```
+
 ### 소스에서 빌드
 
 ```bash
@@ -51,11 +67,11 @@ import com.magovoice.audion.AudionClient;
 AudionClient client = new AudionClient("your-api-key-here");
 ```
 
-### 2. 로컬 파일 처리
+### 2. 로컬 파일 처리 (파일 경로)
 
 ```java
-// 로컬 오디오/비디오 파일 처리
-Object result = client.flow(
+// 로컬 오디오/비디오 파일 경로를 지정하여 처리
+FlowResponse result = client.flow(
     "audion_vu",
     "file",
     "path/to/your/audio.wav"
@@ -63,16 +79,95 @@ Object result = client.flow(
 System.out.println(result);
 ```
 
-### 3. URL 처리
+### 3. 파일 업로드 (InputStream)
+
+디스크에 파일을 저장하지 않고 `InputStream`으로 직접 업로드할 수 있습니다.
+Spring Web의 `MultipartFile`, 메모리 내 바이트 배열, 네트워크 스트림 등 다양한 소스에 활용됩니다.
+
+```java
+import com.magovoice.audion.AudionClient;
+import com.magovoice.audion.model.FlowResponse;
+import java.io.*;
+import java.nio.file.*;
+
+// --- 예시 1: 파일에서 InputStream 생성 ---
+File file = new File("path/to/your/audio.wav");
+try (InputStream stream = new FileInputStream(file)) {
+    FlowResponse result = client.flow("audion_vu", stream, file.getName(), file.length());
+    System.out.println(result);
+}
+
+// --- 예시 2: 파일 크기를 모를 때 (chunked transfer) ---
+try (InputStream stream = new FileInputStream("path/to/your/audio.wav")) {
+    FlowResponse result = client.flow("audion_vu", stream, "audio.wav");
+    System.out.println(result);
+}
+
+// --- 예시 3: 바이트 배열에서 업로드 ---
+byte[] audioBytes = Files.readAllBytes(Paths.get("path/to/your/audio.wav"));
+try (InputStream stream = new ByteArrayInputStream(audioBytes)) {
+    FlowResponse result = client.flow("audion_vu", stream, "audio.wav", audioBytes.length);
+    System.out.println(result);
+}
+
+// --- 예시 4: Spring Boot에서 MultipartFile 활용 ---
+// @PostMapping("/upload")
+// public String upload(@RequestParam MultipartFile file) throws IOException {
+//     FlowResponse result = client.flow(
+//         "audion_vu",
+//         file.getInputStream(),
+//         file.getOriginalFilename(),
+//         file.getSize()
+//     );
+//     return result.toString();
+// }
+```
+
+> **참고**: `contentLength`를 전달하면 서버가 정확한 크기를 미리 알 수 있어 효율적입니다.
+> 크기를 모를 경우 `contentLength` 없이 호출하면 chunked transfer encoding이 사용됩니다.
+
+### 4. URL 처리
 
 ```java
 // YouTube URL 처리
-Object result = client.flow(
+FlowResponse result = client.flow(
     "audion_vu",
     "url",
     "https://youtu.be/your-video-id"
 );
 System.out.println(result);
+```
+
+### 5. 자막 다운로드 (SRT / VTT)
+
+`download` 메서드는 flow 실행(audion_vu)과 자막 다운로드를 한 번에 처리합니다.
+
+```java
+import com.magovoice.audion.model.DownloadFormat;
+import java.nio.file.*;
+import java.util.Map;
+
+// SRT만 다운로드 (경로 생략 → 현재 디렉토리에 {documentId}.srt로 저장)
+Path srtPath = client.download("url", "https://youtu.be/your-video-id", DownloadFormat.SRT);
+
+// VTT만 다운로드 (파일 경로 직접 지정)
+Path vttPath = client.download(
+    "url", "https://youtu.be/your-video-id",
+    DownloadFormat.VTT, Paths.get("/home/user/output.vtt")
+);
+
+// 디렉토리를 지정하면 {documentId}.srt 형태로 자동 파일명 생성
+Path auto = client.download(
+    "url", "https://youtu.be/your-video-id",
+    DownloadFormat.SRT, Paths.get("/home/user/downloads/")
+);
+
+// SRT + VTT 모두 다운로드 (포맷 생략 시 전체)
+Map<DownloadFormat, Path> paths = client.download(
+    "url", "https://youtu.be/your-video-id",
+    Paths.get("/home/user/downloads/")
+);
+paths.forEach((format, path) -> System.out.println(format.getValue() + " → " + path));
 ```
 
 ## 📖 API 문서
@@ -111,7 +206,7 @@ AudionClient(String apiKey, String baseUrl, Integer timeout)
 지정된 플로우로 음성/비디오 처리를 실행합니다.
 
 ```java
-Object flow(String flow, String inputType, String input) throws IOException
+FlowResponse flow(String flow, String inputType, String input) throws IOException
 ```
 
 **매개변수:**
@@ -126,12 +221,114 @@ Object flow(String flow, String inputType, String input) throws IOException
 
 **반환값:**
 
-- `Object`: 처리 결과를 포함하는 JSON 응답
+- `FlowResponse`: 처리 결과를 포함하는 응답 객체
 
 **예외:**
 
 - `IllegalArgumentException`: 지원하지 않는 inputType인 경우
 - `IOException`: API 호출 실패 시
+
+##### `flow(flow, stream, filename, contentLength)`
+
+InputStream을 사용하여 음성/비디오 처리를 실행합니다. 디스크에 파일을 저장하지 않고 바로 업로드할 수 있습니다.
+
+```java
+FlowResponse flow(String flow, InputStream stream, String filename, long contentLength) throws IOException
+```
+
+**매개변수:**
+
+- `flow` (String): 실행할 플로우의 이름
+- `stream` (InputStream): 업로드할 파일의 입력 스트림
+- `filename` (String): 확장자를 포함한 원본 파일명 (예: `"audio.mp3"`)
+- `contentLength` (long): 스트림의 바이트 크기. `-1`이면 chunked transfer 사용
+
+**반환값:**
+
+- `FlowResponse`: 처리 결과를 포함하는 응답 객체
+
+**예외:**
+
+- `IOException`: API 호출 실패 시
+
+##### `flow(flow, stream, filename)`
+
+contentLength를 생략하는 간편 오버로드입니다. chunked transfer encoding이 사용됩니다.
+
+```java
+FlowResponse flow(String flow, InputStream stream, String filename) throws IOException
+```
+
+##### `download(inputType, input, format)`
+
+audion_vu flow를 실행하고 자막 파일을 현재 디렉토리에 `{documentId}.{ext}`로 저장합니다.
+
+```java
+Path download(String inputType, String input, DownloadFormat format) throws IOException
+```
+
+**매개변수:**
+
+- `inputType` (String): 입력 타입. `"file"` 또는 `"url"`
+- `input` (String): 처리할 파일의 경로 또는 URL
+- `format` (DownloadFormat): 다운로드할 포맷. `DownloadFormat.SRT` 또는 `DownloadFormat.VTT`
+
+**반환값:**
+
+- `Path`: 저장된 파일의 경로
+
+**예외:**
+
+- `IOException`: API 호출 또는 파일 저장 실패 시
+
+##### `download(inputType, input, format, outputPath)`
+
+audion_vu flow를 실행하고 자막 파일을 지정된 경로에 저장합니다. `outputPath`가 디렉토리이면 `{documentId}.{ext}`로 자동 파일명이 생성됩니다.
+
+```java
+Path download(String inputType, String input,
+              DownloadFormat format, Path outputPath) throws IOException
+```
+
+**매개변수:**
+
+- `inputType` (String): 입력 타입. `"file"` 또는 `"url"`
+- `input` (String): 처리할 파일의 경로 또는 URL
+- `format` (DownloadFormat): 다운로드할 포맷. `DownloadFormat.SRT` 또는 `DownloadFormat.VTT`
+- `outputPath` (Path): 저장할 파일 경로 또는 디렉토리
+
+**반환값:**
+
+- `Path`: 저장된 파일의 경로
+
+**예외:**
+
+- `IOException`: API 호출 또는 파일 저장 실패 시
+
+##### `download(inputType, input, outputDir)`
+
+audion_vu flow를 실행하고 SRT와 VTT 자막 파일을 모두 다운로드합니다.
+
+```java
+Map<DownloadFormat, Path> download(String inputType, String input,
+                                   Path outputDir) throws IOException
+```
+
+**매개변수:**
+
+- `inputType` (String): 입력 타입. `"file"` 또는 `"url"`
+- `input` (String): 처리할 파일의 경로 또는 URL
+- `outputDir` (Path): 저장할 디렉토리 경로. `{documentId}.srt`, `{documentId}.vtt` 파일이 생성됨
+
+**반환값:**
+
+- `Map<DownloadFormat, Path>`: 포맷별 저장된 파일 경로
+
+**예외:**
+
+- `IOException`: API 호출 또는 파일 저장 실패 시
+
+> InputStream 오버로드도 동일하게 제공됩니다: `download(stream, filename, contentLength, format)`, `download(stream, filename, contentLength, format, outputPath)`, `download(stream, filename, contentLength, outputDir)`
 
 ##### `getFlows()`
 
@@ -167,26 +364,41 @@ Object getFlows() throws IOException
 
 ## 💡 사용 예제
 
-### 완전한 예제
+### 완전한 예제: 자막 다운로드
 
 ```java
 import com.magovoice.audion.AudionClient;
+import com.magovoice.audion.model.DownloadFormat;
+
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
 
 public class Main {
     public static void main(String[] args) {
-        // 클라이언트 초기화
         AudionClient client = new AudionClient("your-api-key-here");
 
         try {
-            // 로컬 파일 처리
-            Object result = client.flow(
-                "audion_vu",
-                "file",
-                "samples/audio.wav"
-            );
+            // SRT 자막 다운로드 (현재 디렉토리에 {documentId}.srt로 저장)
+            Path srtPath = client.download("file", "samples/audio.wav", DownloadFormat.SRT);
+            System.out.println("SRT 저장 완료: " + srtPath);
 
-            System.out.println("처리 결과: " + result);
+            // 경로를 지정하여 VTT 자막 다운로드
+            Path vttPath = client.download(
+                "file", "samples/audio.wav",
+                DownloadFormat.VTT, Paths.get("/home/user/output.vtt")
+            );
+            System.out.println("VTT 저장 완료: " + vttPath);
+
+            // SRT + VTT 모두 다운로드 (디렉토리 지정)
+            Map<DownloadFormat, Path> paths = client.download(
+                "file", "samples/audio.wav",
+                Paths.get("output")
+            );
+            paths.forEach((fmt, path) ->
+                System.out.println(fmt.getValue() + " 저장 완료: " + path)
+            );
 
         } catch (IllegalArgumentException e) {
             System.err.println("입력 오류: " + e.getMessage());
@@ -197,11 +409,43 @@ public class Main {
 }
 ```
 
+### 완전한 예제: InputStream 업로드 + 자막 다운로드 (Spring Boot)
+
+```java
+import com.magovoice.audion.AudionClient;
+import com.magovoice.audion.model.DownloadFormat;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+@RestController
+public class AudioController {
+
+    private final AudionClient client = new AudionClient("your-api-key-here");
+
+    @PostMapping("/transcribe")
+    public String transcribe(@RequestParam MultipartFile file) throws IOException {
+        // 경로 생략 → 현재 디렉토리에 {documentId}.srt로 저장
+        Path srtPath = client.download(
+            file.getInputStream(),
+            file.getOriginalFilename(),
+            file.getSize(),
+            DownloadFormat.SRT
+        );
+
+        return "SRT 저장 완료: " + srtPath;
+    }
+}
+```
+
 ### 예외 처리
 
 ```java
 try {
-    Object result = client.flow("audion_vu", "url", "https://example.com/video.mp4");
+    FlowResponse result = client.flow("audion_vu", "url", "https://example.com/video.mp4");
     System.out.println("성공: " + result);
 } catch (IllegalArgumentException e) {
     // 잘못된 입력 타입이나 파일 형식
@@ -247,6 +491,10 @@ mvn test
 
 ## 📈 버전 히스토리
 
+- **v0.1.4**: 자막 다운로드 및 InputStream 지원
+  - `download()` 메서드 추가 (SRT/VTT 자막 파일 다운로드)
+  - `DownloadFormat` enum 추가
+  - `flow()` InputStream 오버로드 추가 (디스크 I/O 없는 파일 업로드)
 - **v0.1.0**: 초기 릴리스
   - 기본 flow API 지원
   - 파일 및 URL 입력 지원
