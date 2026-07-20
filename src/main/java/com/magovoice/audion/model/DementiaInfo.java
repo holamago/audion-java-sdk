@@ -21,6 +21,9 @@ public class DementiaInfo {
     @JsonProperty("decoding_time")
     private Double decodingTime;
 
+    @JsonProperty("best_dementia")
+    private String bestDementia;
+
     public DementiaInfo() {
     }
 
@@ -50,8 +53,16 @@ public class DementiaInfo {
         return decodingTime;
     }
 
+    public String getBestDementia() {
+        return bestDementia;
+    }
+
     public void setDecodingTime(Double decodingTime) {
         this.decodingTime = decodingTime;
+    }
+
+    public void setBestDementia(String bestDementia) {
+        this.bestDementia = bestDementia;
     }
 
     @Override
@@ -60,6 +71,7 @@ public class DementiaInfo {
                 "dementia=" + dementia +
                 ", control=" + control +
                 ", decodingTime=" + decodingTime +
+                ", bestDementia='" + bestDementia + '\'' +
                 '}';
     }
 }

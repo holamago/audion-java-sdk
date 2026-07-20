@@ -3,6 +3,8 @@ package com.magovoice.audion.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Map;
+
 /**
  * Emotion analysis information
  *
@@ -19,7 +21,7 @@ public class EmotionInfo {
     private String bestEmotion;
 
     @JsonProperty("principal_vocal_biomarkers")
-    private PrincipalVocalBiomarkers principalVocalBiomarkers;
+    private Map<String, Map<String, BiomarkerMetric>> principalVocalBiomarkers;
 
     @JsonProperty("result_path")
     private String resultPath;
@@ -33,7 +35,8 @@ public class EmotionInfo {
     public EmotionInfo() {
     }
 
-    public EmotionInfo(Emotion emotion, String bestEmotion, PrincipalVocalBiomarkers principalVocalBiomarkers,
+    public EmotionInfo(Emotion emotion, String bestEmotion,
+                       Map<String, Map<String, BiomarkerMetric>> principalVocalBiomarkers,
                        String resultPath, Double decodingTime, String filename) {
         this.emotion = emotion;
         this.bestEmotion = bestEmotion;
@@ -59,11 +62,12 @@ public class EmotionInfo {
         this.bestEmotion = bestEmotion;
     }
 
-    public PrincipalVocalBiomarkers getPrincipalVocalBiomarkers() {
+    public Map<String, Map<String, BiomarkerMetric>> getPrincipalVocalBiomarkers() {
         return principalVocalBiomarkers;
     }
 
-    public void setPrincipalVocalBiomarkers(PrincipalVocalBiomarkers principalVocalBiomarkers) {
+    public void setPrincipalVocalBiomarkers(
+            Map<String, Map<String, BiomarkerMetric>> principalVocalBiomarkers) {
         this.principalVocalBiomarkers = principalVocalBiomarkers;
     }
 

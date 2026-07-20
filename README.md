@@ -38,14 +38,14 @@
 <dependency>
     <groupId>com.magovoice</groupId>
     <artifactId>audion</artifactId>
-    <version>0.1.5</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```groovy
-implementation 'com.magovoice:audion:0.1.5'
+implementation 'com.magovoice:audion:0.2.0'
 ```
 
 ### 소스에서 빌드
@@ -215,6 +215,7 @@ FlowResponse flow(String flow, String inputType, String input) throws IOExceptio
   - 현재 지원하는 플로우:
     - `audion_vu`: Voice Understanding
     - `audion_vh`: Voice Highlight
+    - `audion_stt`: STT + LLM
   - Custom Flow 지원 가능 (email:contact@holamago.com)
 - `inputType` (String): 입력 타입. `"file"` 또는 `"url"`
 - `input` (String): 처리할 파일의 경로 또는 URL
@@ -222,6 +223,18 @@ FlowResponse flow(String flow, String inputType, String input) throws IOExceptio
 **반환값:**
 
 - `FlowResponse`: 처리 결과를 포함하는 응답 객체
+
+`content.output.mediaInfo`에는 분석 대상 미디어 정보가 제공됩니다. 발화별 `words`, `dementia_info.best_dementia`, `depression_info.best_depression`은 flow에 따라 선택적으로 제공됩니다.
+
+`emotion_info.principal_vocal_biomarkers`는 변동 가능한 카테고리와 지표를 수용하도록 `Map<String, Map<String, BiomarkerMetric>>`로 제공됩니다. 예를 들어 `pitch.f0_mean`은 다음과 같이 접근합니다.
+
+```java
+Map<String, Map<String, BiomarkerMetric>> biomarkers =
+    utterance.getEmotionInfo().getPrincipalVocalBiomarkers();
+BiomarkerMetric f0Mean = biomarkers.get("pitch").get("f0_mean");
+Object value = f0Mean.getValue();
+Object level = f0Mean.getLevel();
+```
 
 **예외:**
 
@@ -491,6 +504,10 @@ mvn test
 
 ## 📈 버전 히스토리
 
+- **v0.2.0**: 응답 스키마 확장
+  - 중첩형 `principal_vocal_biomarkers` 및 `BiomarkerMetric` 지원
+  - 발화별 `words`, 치매/우울 분석 결과의 best 값 지원
+  - `audion_stt` flow 지원
 - **v0.1.4**: 자막 다운로드 및 InputStream 지원
   - `download()` 메서드 추가 (SRT/VTT 자막 파일 다운로드)
   - `DownloadFormat` enum 추가

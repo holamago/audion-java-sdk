@@ -21,6 +21,9 @@ public class DepressionInfo {
     @JsonProperty("decoding_time")
     private Double decodingTime;
 
+    @JsonProperty("best_depression")
+    private String bestDepression;
+
     public DepressionInfo() {
     }
 
@@ -50,8 +53,16 @@ public class DepressionInfo {
         return decodingTime;
     }
 
+    public String getBestDepression() {
+        return bestDepression;
+    }
+
     public void setDecodingTime(Double decodingTime) {
         this.decodingTime = decodingTime;
+    }
+
+    public void setBestDepression(String bestDepression) {
+        this.bestDepression = bestDepression;
     }
 
     @Override
@@ -60,6 +71,7 @@ public class DepressionInfo {
                 "negative=" + negative +
                 ", positive=" + positive +
                 ", decodingTime=" + decodingTime +
+                ", bestDepression='" + bestDepression + '\'' +
                 '}';
     }
 }

@@ -3,6 +3,8 @@ package com.magovoice.audion.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 /**
  * Utterance (speech segment) data
  *
@@ -50,6 +52,9 @@ public class Utterance {
 
     @JsonProperty("depression_info")
     private DepressionInfo depressionInfo;
+
+    @JsonProperty("words")
+    private List<Object> words;
 
     public Utterance() {
     }
@@ -173,8 +178,16 @@ public class Utterance {
         return depressionInfo;
     }
 
+    public List<Object> getWords() {
+        return words;
+    }
+
     public void setDepressionInfo(DepressionInfo depressionInfo) {
         this.depressionInfo = depressionInfo;
+    }
+
+    public void setWords(List<Object> words) {
+        this.words = words;
     }
 
     @Override
@@ -193,6 +206,7 @@ public class Utterance {
                 ", voiceHighlight=" + voiceHighlight +
                 ", dementiaInfo=" + dementiaInfo +
                 ", depressionInfo=" + depressionInfo +
+                ", words=" + words +
                 '}';
     }
 }
