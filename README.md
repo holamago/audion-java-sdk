@@ -216,6 +216,7 @@ FlowResponse flow(String flow, String inputType, String input) throws IOExceptio
     - `audion_vu`: Voice Understanding
     - `audion_vh`: Voice Highlight
     - `audion_stt`: STT + LLM
+    - `audion_stt_2spk`: Fixed two-speaker STT + LLM
   - Custom Flow 지원 가능 (email:contact@holamago.com)
 - `inputType` (String): 입력 타입. `"file"` 또는 `"url"`
 - `input` (String): 처리할 파일의 경로 또는 URL
@@ -508,6 +509,7 @@ mvn test
   - 중첩형 `principal_vocal_biomarkers` 및 `BiomarkerMetric` 지원
   - 발화별 `words`, 치매/우울 분석 결과의 best 값 지원
   - `audion_stt` flow 지원
+  - `audion_stt_2spk` 2인 화자 고정 flow 지원
 - **v0.1.4**: 자막 다운로드 및 InputStream 지원
   - `download()` 메서드 추가 (SRT/VTT 자막 파일 다운로드)
   - `DownloadFormat` enum 추가
