@@ -66,6 +66,21 @@ public class AudionClient extends BaseAudionClient {
     public FlowResponse flow(String flow, String inputType, String input) throws IOException {
         return super.flow(flow, inputType, input);
     }
+
+    /**
+     * Execute a flow with an optional speaker limit for diarization
+     *
+     * @param flow the flow to execute
+     * @param inputType the type of input (file or url)
+     * @param input the input data (file path or URL)
+     * @param numSpeakers optional speaker limit. Use 0 for no limit, or 1-8 to set a fixed maximum
+     * @return the flow response
+     * @throws IOException if the request fails
+     * @throws IllegalArgumentException if the input type or numSpeakers is not supported
+     */
+    public FlowResponse flow(String flow, String inputType, String input, Integer numSpeakers) throws IOException {
+        return super.flow(flow, inputType, input, numSpeakers);
+    }
     
     /**
      * Execute a flow with an InputStream
@@ -79,6 +94,21 @@ public class AudionClient extends BaseAudionClient {
      */
     public FlowResponse flow(String flow, InputStream stream, String filename, long contentLength) throws IOException {
         return super.flow(flow, stream, filename, contentLength);
+    }
+
+    /**
+     * Execute a flow with an InputStream and optional speaker limit for diarization
+     *
+     * @param flow the flow to execute
+     * @param stream the input stream of the file
+     * @param filename the original filename including extension (e.g. "audio.mp3")
+     * @param contentLength the size of the stream in bytes, or -1 if unknown (uses chunked transfer)
+     * @param numSpeakers optional speaker limit. Use 0 for no limit, or 1-8 to set a fixed maximum
+     * @return the flow response
+     * @throws IOException if the request fails
+     */
+    public FlowResponse flow(String flow, InputStream stream, String filename, long contentLength, Integer numSpeakers) throws IOException {
+        return super.flow(flow, stream, filename, contentLength, numSpeakers);
     }
 
     /**

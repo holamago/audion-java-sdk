@@ -68,6 +68,22 @@ public abstract class BaseAudionClient {
      * @throws IllegalArgumentException if the input type is not supported
      */
     public FlowResponse flow(String flow, String inputType, String input) throws IOException {
+        return flow(flow, inputType, input, null);
+    }
+
+    /**
+     * Execute a flow with an optional speaker limit for diarization.
+     *
+     * @param flow the flow to execute
+     * @param inputType the type of input (file or url)
+     * @param input the input data (file path or URL)
+     * @param numSpeakers optional speaker limit. Use 0 for no limit, or 1-8 to set a fixed maximum
+     * @return the flow response
+     * @throws IOException if the request fails
+     * @throws IllegalArgumentException if the input type or numSpeakers is not supported
+     */
+    public FlowResponse flow(String flow, String inputType, String input, Integer numSpeakers) throws IOException {
+        validateNumSpeakers(numSpeakers);
         String url = baseUrl + "/flow";
         logger.info("Calling flow API: {}", url);
         
@@ -94,6 +110,7 @@ public abstract class BaseAudionClient {
                     .addFormDataPart("input", input)
                     .addFormDataPart("file", input, 
                             RequestBody.create(MediaType.parse(mediaType), file));
+            addNumSpeakers(multipartBuilder, numSpeakers);
             
             requestBody = multipartBuilder.build();
             
@@ -102,6 +119,7 @@ public abstract class BaseAudionClient {
                     .add("flow", flow)
                     .add("input_type", inputType)
                     .add("input", input);
+            addNumSpeakers(formBuilder, numSpeakers);
             
             requestBody = formBuilder.build();
             
@@ -145,6 +163,23 @@ public abstract class BaseAudionClient {
      * @throws IOException if the request fails
      */
     public FlowResponse flow(String flow, InputStream stream, String filename, long contentLength) throws IOException {
+        return flow(flow, stream, filename, contentLength, null);
+    }
+
+    /**
+     * Execute a flow with an InputStream and optional speaker limit for diarization.
+     *
+     * @param flow the flow to execute
+     * @param stream the input stream of the file
+     * @param filename the original filename including extension (e.g. "audio.mp3")
+     * @param contentLength the size of the stream in bytes, or -1 if unknown (uses chunked transfer)
+     * @param numSpeakers optional speaker limit. Use 0 for no limit, or 1-8 to set a fixed maximum
+     * @return the flow response
+     * @throws IOException if the request fails
+     * @throws IllegalArgumentException if numSpeakers is not supported
+     */
+    public FlowResponse flow(String flow, InputStream stream, String filename, long contentLength, Integer numSpeakers) throws IOException {
+        validateNumSpeakers(numSpeakers);
         String url = baseUrl + "/flow";
         logger.info("Calling flow API with stream: {}, filename: {}, contentLength: {}", url, filename, contentLength);
 
@@ -167,12 +202,13 @@ public abstract class BaseAudionClient {
             }
         };
 
-        RequestBody requestBody = new MultipartBody.Builder()
+        MultipartBody.Builder multipartBuilder = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("flow", flow)
                 .addFormDataPart("input_type", "file")
-                .addFormDataPart("file", filename, fileBody)
-                .build();
+                .addFormDataPart("file", filename, fileBody);
+        addNumSpeakers(multipartBuilder, numSpeakers);
+        RequestBody requestBody = multipartBuilder.build();
 
         Request request = new Request.Builder()
                 .url(url)
@@ -212,6 +248,27 @@ public abstract class BaseAudionClient {
      */
     public FlowResponse flow(String flow, InputStream stream, String filename) throws IOException {
         return flow(flow, stream, filename, -1);
+    }
+
+    private static void addNumSpeakers(FormBody.Builder builder, Integer numSpeakers) {
+        if (numSpeakers != null) {
+            builder.add("num_speakers", String.valueOf(numSpeakers));
+        }
+    }
+
+    private static void addNumSpeakers(MultipartBody.Builder builder, Integer numSpeakers) {
+        if (numSpeakers != null) {
+            builder.addFormDataPart("num_speakers", String.valueOf(numSpeakers));
+        }
+    }
+
+    private static void validateNumSpeakers(Integer numSpeakers) {
+        if (numSpeakers == null) {
+            return;
+        }
+        if (numSpeakers < 0 || numSpeakers > 8) {
+            throw new IllegalArgumentException("numSpeakers must be between 0 and 8");
+        }
     }
 
     /**
