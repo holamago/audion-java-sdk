@@ -1,9 +1,13 @@
 package com.magovoice.audion.model;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Utterance (speech segment) data
@@ -55,6 +59,23 @@ public class Utterance {
 
     @JsonProperty("words")
     private List<Object> words;
+
+    @JsonProperty("principal_biomarker_evaluations")
+    private Map<String, BiomarkerMetric> principalBiomarkerEvaluations;
+
+    @JsonProperty("interpretations")
+    private Map<String, BiomarkerMetric> interpretations;
+
+    @JsonProperty("vad_scores")
+    private Map<String, Double> vadScores;
+
+    @JsonProperty("text_temporal_features")
+    private Map<String, Double> textTemporalFeatures;
+
+    @JsonProperty("vbm_emotion_class")
+    private String vbmEmotionClass;
+
+    private final Map<String, Object> additionalProperties = new LinkedHashMap<>();
 
     public Utterance() {
     }
@@ -190,6 +211,57 @@ public class Utterance {
         this.words = words;
     }
 
+    public Map<String, BiomarkerMetric> getPrincipalBiomarkerEvaluations() {
+        return principalBiomarkerEvaluations;
+    }
+
+    public void setPrincipalBiomarkerEvaluations(
+            Map<String, BiomarkerMetric> principalBiomarkerEvaluations) {
+        this.principalBiomarkerEvaluations = principalBiomarkerEvaluations;
+    }
+
+    public Map<String, BiomarkerMetric> getInterpretations() {
+        return interpretations;
+    }
+
+    public void setInterpretations(Map<String, BiomarkerMetric> interpretations) {
+        this.interpretations = interpretations;
+    }
+
+    public Map<String, Double> getVadScores() {
+        return vadScores;
+    }
+
+    public void setVadScores(Map<String, Double> vadScores) {
+        this.vadScores = vadScores;
+    }
+
+    public Map<String, Double> getTextTemporalFeatures() {
+        return textTemporalFeatures;
+    }
+
+    public void setTextTemporalFeatures(Map<String, Double> textTemporalFeatures) {
+        this.textTemporalFeatures = textTemporalFeatures;
+    }
+
+    public String getVbmEmotionClass() {
+        return vbmEmotionClass;
+    }
+
+    public void setVbmEmotionClass(String vbmEmotionClass) {
+        this.vbmEmotionClass = vbmEmotionClass;
+    }
+
+    @JsonAnySetter
+    public void setAdditionalProperty(String name, Object value) {
+        additionalProperties.put(name, value);
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> getAdditionalProperties() {
+        return additionalProperties;
+    }
+
     @Override
     public String toString() {
         return "Utterance{" +
@@ -207,6 +279,11 @@ public class Utterance {
                 ", dementiaInfo=" + dementiaInfo +
                 ", depressionInfo=" + depressionInfo +
                 ", words=" + words +
+                ", principalBiomarkerEvaluations=" + principalBiomarkerEvaluations +
+                ", interpretations=" + interpretations +
+                ", vadScores=" + vadScores +
+                ", textTemporalFeatures=" + textTemporalFeatures +
+                ", vbmEmotionClass='" + vbmEmotionClass + '\'' +
                 '}';
     }
 }

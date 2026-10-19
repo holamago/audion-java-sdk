@@ -1,9 +1,13 @@
 package com.magovoice.audion.model;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Output data from the flow response
@@ -55,6 +59,8 @@ public class Output {
      */
     @JsonProperty("segments")
     private List<SpeakerSegment> segments;
+
+    private final Map<String, Object> additionalProperties = new LinkedHashMap<>();
 
     /**
      * Default constructor
@@ -134,6 +140,16 @@ public class Output {
 
     public void setSegments(List<SpeakerSegment> segments) {
         this.segments = segments;
+    }
+
+    @JsonAnySetter
+    public void setAdditionalProperty(String name, Object value) {
+        additionalProperties.put(name, value);
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> getAdditionalProperties() {
+        return additionalProperties;
     }
 
     @Override

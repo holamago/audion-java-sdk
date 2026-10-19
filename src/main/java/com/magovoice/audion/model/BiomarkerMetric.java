@@ -15,6 +15,9 @@ public class BiomarkerMetric {
     @JsonProperty("level")
     private Object level;
 
+    @JsonProperty("unit")
+    private String unit;
+
     public BiomarkerMetric() {
     }
 
@@ -39,11 +42,20 @@ public class BiomarkerMetric {
         this.level = level;
     }
 
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
+
     @Override
     public String toString() {
         return "BiomarkerMetric{" +
                 "value=" + value +
                 ", level=" + level +
+                ", unit='" + unit + '\'' +
                 '}';
     }
 }

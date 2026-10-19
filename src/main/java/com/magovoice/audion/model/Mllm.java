@@ -1,7 +1,12 @@
 package com.magovoice.audion.model;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * MLLM (Multimodal Large Language Model) output data
@@ -35,6 +40,8 @@ public class Mllm {
      */
     @JsonProperty("answer")
     private String answer;
+
+    private final Map<String, Object> additionalProperties = new LinkedHashMap<>();
 
     /**
      * Default constructor
@@ -86,6 +93,16 @@ public class Mllm {
 
     public void setAnswer(String answer) {
         this.answer = answer;
+    }
+
+    @JsonAnySetter
+    public void setAdditionalProperty(String name, Object value) {
+        additionalProperties.put(name, value);
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> getAdditionalProperties() {
+        return additionalProperties;
     }
 
     @Override
